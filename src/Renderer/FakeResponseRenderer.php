@@ -5,6 +5,7 @@ namespace Arcanist\Renderer;
 use Arcanist\WizardStep;
 use Arcanist\AbstractWizard;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Arcanist\Contracts\ResponseRenderer;
 use Illuminate\Contracts\Support\Responsable;
@@ -26,7 +27,7 @@ class FakeResponseRenderer implements ResponseRenderer
         return new Response();
     }
 
-    public function redirect(WizardStep $step, AbstractWizard $wizard): RedirectResponse
+    public function redirect(WizardStep $step, AbstractWizard $wizard): RedirectResponse | Response | JsonResponse
     {
         $this->redirect = get_class($step);
 
@@ -37,7 +38,7 @@ class FakeResponseRenderer implements ResponseRenderer
         WizardStep $step,
         AbstractWizard $wizard,
         ?string $error = null
-    ): RedirectResponse {
+    ): RedirectResponse  | Response | JsonResponse {
         $this->redirect = get_class($step);
         $this->hasError = true;
         $this->error = $error;

@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Arcanist\Event\WizardLoaded;
 use Arcanist\Event\WizardSaving;
 use Arcanist\Action\ActionResult;
+use Illuminate\Http\JsonResponse;
 use Arcanist\Event\WizardFinished;
 use Illuminate\Support\Collection;
 use Arcanist\Event\WizardFinishing;
@@ -127,7 +128,7 @@ abstract class AbstractWizard
     /**
      * Renders the template of the first step of this wizard.
      */
-    public function create(Request $request): Responsable | Response | Renderable
+    public function create(Request $request): Responsable | Response | Renderable | JsonResponse
     {
         return $this->renderStep($request, $this->steps[0]);
     }
@@ -137,7 +138,7 @@ abstract class AbstractWizard
      *
      * @throws UnknownStepException
      */
-    public function show(Request $request, string $wizardId, ?string $slug = null): Responsable | Response | Renderable | RedirectResponse
+    public function show(Request $request, string $wizardId, ?string $slug = null): Responsable | Response | Renderable | RedirectResponse | JsonResponse
     {
         $this->load($wizardId);
 
@@ -165,7 +166,7 @@ abstract class AbstractWizard
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse | Response | JsonResponse
     {
         $step = $this->loadFirstStep();
 
@@ -193,7 +194,7 @@ abstract class AbstractWizard
      * @throws UnknownStepException
      * @throws ValidationException
      */
-    public function update(Request $request, string $wizardId, string $slug): RedirectResponse
+    public function update(Request $request, string $wizardId, string $slug): RedirectResponse | JsonResponse
     {
         $this->load($wizardId);
 
@@ -293,7 +294,7 @@ abstract class AbstractWizard
     /**
      * Gets called after the last step in the wizard is finished.
      */
-    protected function onAfterComplete(ActionResult $result): RedirectResponse
+    protected function onAfterComplete(ActionResult $result): RedirectResponse | JsonResponse
     {
         return redirect()->to($this->redirectTo());
     }
@@ -360,7 +361,7 @@ abstract class AbstractWizard
         event(new WizardLoaded($this));
     }
 
-    private function renderStep(Request $request, WizardStep $step): Responsable | Response | Renderable
+    private function renderStep(Request $request, WizardStep $step): Responsable | Response | Renderable | JsonResponse
     {
         return $this->responseRenderer->renderStep(
             $step,
@@ -390,7 +391,7 @@ abstract class AbstractWizard
         $this->wizardRepository->saveData($this, $data);
     }
 
-    private function processLastStep(WizardStep $step): RedirectResponse
+    private function processLastStep(WizardStep $step): RedirectResponse | JsonResponse
     {
         $this->load($this->id);
 

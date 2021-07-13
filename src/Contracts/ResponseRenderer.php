@@ -5,6 +5,7 @@ namespace Arcanist\Contracts;
 use Arcanist\WizardStep;
 use Arcanist\AbstractWizard;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\Support\Responsable;
@@ -15,16 +16,16 @@ interface ResponseRenderer
         WizardStep $step,
         AbstractWizard $wizard,
         array $data = []
-    ): Response | Responsable | Renderable;
+    ): Response | Responsable | Renderable | JsonResponse;
 
     public function redirect(
         WizardStep $step,
         AbstractWizard $wizard
-    ): RedirectResponse;
+    ): RedirectResponse | Response | JsonResponse;
 
     public function redirectWithError(
         WizardStep $step,
         AbstractWizard $wizard,
         ?string $error = null
-    ): RedirectResponse;
+    ): RedirectResponse | Response | JsonResponse;
 }
