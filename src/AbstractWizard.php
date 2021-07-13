@@ -10,11 +10,9 @@ use function data_get;
 use function redirect;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Arcanist\Event\WizardLoaded;
 use Arcanist\Event\WizardSaving;
 use Arcanist\Action\ActionResult;
-use Illuminate\Http\JsonResponse;
 use Arcanist\Event\WizardFinished;
 use Illuminate\Support\Collection;
 use Arcanist\Event\WizardFinishing;
@@ -28,6 +26,7 @@ use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Validation\ValidationException;
 use Arcanist\Exception\WizardNotFoundException;
 use Arcanist\Exception\CannotUpdateStepException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractWizard
@@ -128,7 +127,7 @@ abstract class AbstractWizard
     /**
      * Renders the template of the first step of this wizard.
      */
-    public function create(Request $request): Responsable | Response | Renderable | JsonResponse
+    public function create(Request $request): Responsable | Response | Renderable
     {
         return $this->renderStep($request, $this->steps[0]);
     }
@@ -138,7 +137,7 @@ abstract class AbstractWizard
      *
      * @throws UnknownStepException
      */
-    public function show(Request $request, string $wizardId, ?string $slug = null): Responsable | Response | Renderable | RedirectResponse | JsonResponse
+    public function show(Request $request, string $wizardId, ?string $slug = null): Responsable | Response | Renderable | RedirectResponse
     {
         $this->load($wizardId);
 
@@ -166,7 +165,7 @@ abstract class AbstractWizard
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse | Response | JsonResponse
+    public function store(Request $request): RedirectResponse | Response
     {
         $step = $this->loadFirstStep();
 
@@ -194,7 +193,7 @@ abstract class AbstractWizard
      * @throws UnknownStepException
      * @throws ValidationException
      */
-    public function update(Request $request, string $wizardId, string $slug): RedirectResponse | JsonResponse
+    public function update(Request $request, string $wizardId, string $slug): RedirectResponse | Response
     {
         $this->load($wizardId);
 
@@ -294,7 +293,7 @@ abstract class AbstractWizard
     /**
      * Gets called after the last step in the wizard is finished.
      */
-    protected function onAfterComplete(ActionResult $result): RedirectResponse | JsonResponse
+    protected function onAfterComplete(ActionResult $result): RedirectResponse | Response
     {
         return redirect()->to($this->redirectTo());
     }
@@ -361,7 +360,7 @@ abstract class AbstractWizard
         event(new WizardLoaded($this));
     }
 
-    private function renderStep(Request $request, WizardStep $step): Responsable | Response | Renderable | JsonResponse
+    private function renderStep(Request $request, WizardStep $step): Responsable | Response | Renderable
     {
         return $this->responseRenderer->renderStep(
             $step,
@@ -391,7 +390,7 @@ abstract class AbstractWizard
         $this->wizardRepository->saveData($this, $data);
     }
 
-    private function processLastStep(WizardStep $step): RedirectResponse | JsonResponse
+    private function processLastStep(WizardStep $step): RedirectResponse | Response
     {
         $this->load($this->id);
 
