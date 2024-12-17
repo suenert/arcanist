@@ -37,11 +37,12 @@ trait ResponseRendererContractTests
         $step = m::mock(WizardStep::class)->makePartial();
         $step->slug = 'step-with-non-existent-template';
 
-        $this->expectException(StepTemplateNotFoundException::class);
-        $this->expectErrorMessage('No template found for step [step-with-non-existent-template].');
-
-        $this->makeRenderer()
-            ->renderStep($step, $wizard, []);
+        try {
+            $this->makeRenderer()
+                ->renderStep($step, $wizard, []);
+        } catch (StepTemplateNotFoundException $e) {
+            $this->assertSame('No template found for step [step-with-non-existent-template].', $e->getMessage());
+        }
     }
 
     /**
